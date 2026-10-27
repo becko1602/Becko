@@ -1,8 +1,8 @@
-# Kaizumi Vision Platform
+# Becko Vision Platform
 
 ## Maqsad
 
-Kaizumi’ni oddiy voice assistant’dan real dunyoni ko‘ra oladigan, kamera va ekran bilan ishlaydigan JARVIS-style vision assistant’ga aylantirish.
+Becko’ni oddiy voice assistant’dan real dunyoni ko‘ra oladigan, kamera va ekran bilan ishlaydigan JARVIS-style vision assistant’ga aylantirish.
 
 Platforma quyidagilarni bajara olishi kerak:
 
@@ -238,7 +238,7 @@ Hozirgi MediaPipe gesture service kengaytiriladi.
 | Pinch | Click/grab |
 | Swipe left | Previous page |
 | Swipe right | Next page |
-| Raised hand | Wake Kaizumi |
+| Raised hand | Wake Becko |
 
 ### Safety qoidalari
 
@@ -348,7 +348,7 @@ Text Detection
   ↓
 OCR
   ↓
-Kaizumi Summary
+Becko Summary
 ```
 
 Voice komandalar:
@@ -405,7 +405,7 @@ Model variantlari:
 
 ### Image captioning
 
-Kaizumi kamera yoki rasmni tavsiflaydi:
+Becko kamera yoki rasmni tavsiflaydi:
 
 ```text
 Stol ustida laptop, telefon va bir stakan suv bor.
@@ -426,7 +426,7 @@ Bu modul local multimodal model yoki mavjud vision API bilan ishlashi mumkin. Pr
 
 ## 11. Anomaly va Security Monitoring
 
-Kaizumi odatiy holatni o‘rganib, noodatiy holatlarni bildiradi.
+Becko odatiy holatni o‘rganib, noodatiy holatlarni bildiradi.
 
 Aniqlanadigan holatlar:
 
@@ -468,12 +468,12 @@ Workflow:
 4. Augmentation qo‘llash.
 5. YOLO modelini train qilish.
 6. Modelni ONNX yoki PyTorch formatiga export qilish.
-7. Kaizumi local inference’iga ulash.
+7. Becko local inference’iga ulash.
 8. Test video bilan accuracy va latency’ni o‘lchash.
 
 Custom model misollari:
 
-- Kaizumi-specific gesture’lar;
+- Becko-specific gesture’lar;
 - foydalanuvchining shaxsiy qurilmalari;
 - pothole detection;
 - construction safety;
@@ -514,14 +514,14 @@ Dashboard komponentlari:
 - event timeline;
 - snapshot button;
 - recording button;
-- “Ask Kaizumi about this frame” button;
+- “Ask Becko about this frame” button;
 - model load/error indicator.
 
 ## 14. Development Phases
 
 ### Phase 1 — Vision MVP
 
-Maqsad: Kaizumi kamerani ko‘radi va asosiy real-time signal beradi.
+Maqsad: Becko kamerani ko‘radi va asosiy real-time signal beradi.
 
 - camera manager;
 - live preview;
@@ -570,7 +570,7 @@ Maqsad: Kaizumi kamerani ko‘radi va asosiy real-time signal beradi.
 - Roboflow dataset;
 - custom YOLO training;
 - personal gestures;
-- Kaizumi-specific object classes;
+- Becko-specific object classes;
 - domain-specific models;
 - GPU/ONNX optimization;
 - optional edge deployment.
@@ -579,7 +579,7 @@ Maqsad: Kaizumi kamerani ko‘radi va asosiy real-time signal beradi.
 
 Birinchi milestone quyidagicha bo‘ladi:
 
-> Kaizumi kamerani ochadi, odamlar va obyektlarni real vaqtda topadi, gesture’ni taniydi, pose skeleton chizadi, OCR orqali matnni o‘qiydi va bularning barchasini JARVIS dashboard’ida ko‘rsatadi.
+> Becko kamerani ochadi, odamlar va obyektlarni real vaqtda topadi, gesture’ni taniydi, pose skeleton chizadi, OCR orqali matnni o‘qiydi va bularning barchasini JARVIS dashboard’ida ko‘rsatadi.
 
 Implementatsiya tartibi:
 
@@ -657,7 +657,7 @@ MVP uchun minimal maqsadlar:
 
 ## Yakuniy natija
 
-Ushbu plan bajarilgach, Kaizumi quyidagi darajaga chiqadi:
+Ushbu plan bajarilgach, Becko quyidagi darajaga chiqadi:
 
 ```text
 Ko‘radi       → obyekt, odam, yuz, gesture, text

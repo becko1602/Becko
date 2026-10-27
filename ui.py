@@ -1,3 +1,4 @@
+from assistant_settings import DEFAULT_VOICE
 import os, json, time, math, random, threading
 import tkinter as tk
 from collections import deque
@@ -18,8 +19,8 @@ CONFIG_DIR = BASE_DIR / "config"
 API_FILE   = CONFIG_DIR / "api_keys.json"
 THEME_FILE = CONFIG_DIR / "ui_theme.json"
 
-SYSTEM_NAME = "KAIZUMI"
-MODEL_BADGE = "KAIZUMI"
+SYSTEM_NAME = "BECKO"
+MODEL_BADGE = "BECKO"
 
 # ── High-DPI awareness: crisp text on 125% / 150% laptop scaling ───────────
 if sys.platform == "win32":
@@ -104,10 +105,10 @@ def _save_theme_name(name: str) -> None:
         pass
 
 
-class KaizumiUI:
+class BeckoUI:
     def __init__(self, face_path, size=None):
         self.root = tk.Tk()
-        self.root.title("Kaizumi")
+        self.root.title("Becko")
         self.root.resizable(True, True)
 
         sw = self.root.winfo_screenwidth()
@@ -159,7 +160,7 @@ class KaizumiUI:
         # Persona / connection info (updated by main.py)
         self.persona_mode  = "normal"
         self.persona_mood  = "calm"
-        self.persona_voice = "Aoede"
+        self.persona_voice = DEFAULT_VOICE
         self.connected     = False
         self.connecting    = False
         self.last_event    = ""
@@ -290,7 +291,7 @@ class KaizumiUI:
             pass
 
     def _build_command_deck(self):
-        """Build the live control surface around the central Kaizumi core."""
+        """Build the live control surface around the central Becko core."""
         self._left_deck = tk.Frame(self.root, bg=self.col["panel"],
                                    highlightbackground=self.col["mid"], highlightthickness=1)
         self._right_deck = tk.Frame(self.root, bg=self.col["panel"],
@@ -408,7 +409,7 @@ class KaizumiUI:
             self._preview_window.lift()
             return
         win = tk.Toplevel(self.root)
-        win.title("Kaizumi Vision Preview · Privacy Blur")
+        win.title("Becko Vision Preview · Privacy Blur")
         win.configure(bg=self.col["bg"])
         win.geometry("700x560")
         win.resizable(True, True)
@@ -437,7 +438,7 @@ class KaizumiUI:
             self._arcade_window.lift()
             return
         win = tk.Toplevel(self.root)
-        win.title("Kaizumi Vision Arcade · Local CV")
+        win.title("Becko Vision Arcade · Local CV")
         win.configure(bg=self.col["bg"])
         win.geometry("1100x760")
         win.minsize(900, 620)
@@ -595,7 +596,7 @@ class KaizumiUI:
     def set_persona(self, mode: str, mood: str, voice: str):
         self.persona_mode  = mode or "normal"
         self.persona_mood  = mood or "calm"
-        self.persona_voice = voice or "Aoede"
+        self.persona_voice = voice or DEFAULT_VOICE
 
     def set_connection(self, ok: bool):
         self.connected  = bool(ok)
@@ -644,7 +645,7 @@ class KaizumiUI:
         self.silent_mode = not self.silent_mode
         self._draw_silent_button()
         self.set_state("TEXT-ONLY" if self.silent_mode else ("MUTED" if self.muted else "LISTENING"))
-        self.write_log("SYS: Text-only mode enabled — Kaizumi will type, not speak." if self.silent_mode
+        self.write_log("SYS: Text-only mode enabled — Becko will type, not speak." if self.silent_mode
                        else "SYS: Voice output restored.")
 
     def _draw_mute_button(self):
@@ -1168,7 +1169,7 @@ class KaizumiUI:
         c.create_text(W - 16, H - 14, text=hints, fill=col["dim"],
                       font=("Segoe UI", 8), anchor="e")
 
-        c.create_text(16, H - 14, text=f"Kaizumi · {THEMES[self._theme]['name']}",
+        c.create_text(16, H - 14, text=f"Becko · {THEMES[self._theme]['name']}",
                       fill=col["dim"], font=("Segoe UI", 8), anchor="w")
 
     # ── Log ───────────────────────────────────────────────────────────────────
@@ -1187,7 +1188,7 @@ class KaizumiUI:
         tl = text.lower()
         if tl.startswith("you:"):
             self.set_state("PROCESSING")
-        elif tl.startswith("kaizumi:") or tl.startswith("ai:"):
+        elif tl.startswith("becko:") or tl.startswith("ai:"):
             self.set_state("SPEAKING")
         if not self.is_typing:
             self._start_typing()
@@ -1203,7 +1204,7 @@ class KaizumiUI:
         tl   = text.lower()
         if tl.startswith("you:"):
             tag = "you"
-        elif tl.startswith("kaizumi:") or tl.startswith("ai:"):
+        elif tl.startswith("becko:") or tl.startswith("ai:"):
             tag = "ai"
         elif tl.startswith("err:") or "error" in tl or "failed" in tl:
             tag = "err"
@@ -1235,19 +1236,8 @@ class KaizumiUI:
 
     def _api_keys_exist(self):
         """A usable Gemini key must exist (env or config), not just the file."""
-        if os.environ.get("KAIZUMI_GEMINI_API_KEY", "").strip():
-            return True
-        if os.environ.get("KAIZUMI_GEMINI_API_KEYS", "").strip():
-            return True
-        try:
-            cfg = json.loads(API_FILE.read_text(encoding="utf-8"))
-        except Exception:
-            return False
-        if isinstance(cfg.get("gemini_api_key"), str) and cfg["gemini_api_key"].strip():
-            return True
-        keys = cfg.get("gemini_api_keys")
-        return bool(isinstance(keys, list) and
-                    any(isinstance(k, str) and k.strip() for k in keys))
+        from api_keys import get_all_keys
+        return bool(get_all_keys(API_FILE))
 
     def wait_for_api_key(self):
         while not self._api_key_ready:
@@ -1264,7 +1254,7 @@ class KaizumiUI:
                  fg=THEMES[self._theme]["pri"], bg=THEMES[self._theme]["hdr"],
                  font=("Segoe UI", 13, "bold")).pack(pady=(18, 4))
         tk.Label(self.setup_frame,
-                 text="Enter your Gemini API key to boot Kaizumi.",
+                 text="Enter your Gemini API key to boot Becko.",
                  fg=THEMES[self._theme]["mid"], bg=THEMES[self._theme]["hdr"],
                  font=("Segoe UI", 9)).pack(pady=(0, 10))
 
@@ -1297,4 +1287,4 @@ class KaizumiUI:
         self.setup_frame.destroy()
         self._api_key_ready = True
         self.set_state("LISTENING")
-        self.write_log("SYS: Systems initialised. Kaizumi online.")
+        self.write_log("SYS: Systems initialised. Becko online.")

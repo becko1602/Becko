@@ -1,5 +1,5 @@
 # actions/system_tray.py
-# Kaizumi — background system-tray icon + optional global hotkeys.
+# Becko — background system-tray icon + optional global hotkeys.
 # Optional deps: pystray (tray) and keyboard (global hotkeys). Both are
 # guarded — missing ones simply disable that feature instead of crashing.
 
@@ -40,7 +40,7 @@ def _build_icon():
     return img
 
 
-def configure_icon(menu_factory, title: str = "Kaizumi") -> bool:
+def configure_icon(menu_factory, title: str = "Becko") -> bool:
     """Build a pystray icon with the given menu factory and show it in a thread."""
     global _tray_icon, _tray_thread
     if not _PYSTRAY:
@@ -50,7 +50,7 @@ def configure_icon(menu_factory, title: str = "Kaizumi") -> bool:
     try:
         menu = menu_factory() if callable(menu_factory) else menu_factory
         icon = pystray.Icon(
-            name="Kaizumi",
+            name="Becko",
             icon=_build_icon(),
             title=title,
             menu=menu,

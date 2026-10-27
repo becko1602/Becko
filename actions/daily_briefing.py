@@ -1,5 +1,5 @@
 # actions/daily_briefing.py
-# Kaizumi — Daily morning brief (time, weather, memory facts, system status)
+# Becko — Daily morning brief (time, weather, memory facts, system status)
 
 import re
 from datetime import datetime

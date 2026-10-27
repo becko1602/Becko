@@ -1,5 +1,5 @@
 # actions/vision_click.py
-# Kaizumi — click anywhere on screen by describing it (vision → coordinates)
+# Becko — click anywhere on screen by describing it (vision → coordinates)
 
 import io
 import json
@@ -56,7 +56,7 @@ def _find_coordinates(image_bytes: bytes, target: str) -> tuple[int, int] | None
     from google import genai
     client = genai.Client(api_key=_get_api_key())
     prompt = (
-        "You are Kaizumi's screen-click module. Find the UI element described "
+        "You are Becko's screen-click module. Find the UI element described "
         "by the user in this screenshot. Return ONLY JSON with the pixel "
         "coordinates of the element's CENTER, in the screenshot's own pixel "
         f"dimensions.\n\nUser wants to click on: \"{target}\"\n\n"

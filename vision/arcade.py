@@ -1,4 +1,4 @@
-"""Deterministic game state for Kaizumi Vision Arcade."""
+"""Deterministic game state for Becko Vision Arcade."""
 
 from __future__ import annotations
 
@@ -147,7 +147,7 @@ class VisionArcade:
             else:
                 self.state.lives = max(0, self.state.lives - 1)
                 self.state.streak = 0
-                self.state.message = "KAIZUMI WINS"
+                self.state.message = "BECKO WINS"
         return self.state
 
     def on_pose(self, arms_raised: bool, lean: float = 0.0) -> ArcadeState:

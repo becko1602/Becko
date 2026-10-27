@@ -1,4 +1,4 @@
-# start_kaizumi.ps1 — single-instance Kaizumi launcher.
+# start_becko.ps1 — single-instance Becko launcher.
 # Auto-detects the Python interpreter (venv first, then system python).
 $ErrorActionPreference = "Stop"
 
@@ -23,7 +23,7 @@ if (-not $PY) {
     exit 1
 }
 
-# Kill any existing Kaizumi instances (single instance).
+# Kill any existing Becko instances (single instance).
 Get-CimInstance Win32_Process -Filter "Name='pythonw.exe' OR Name='python.exe'" |
     Where-Object { $_.CommandLine -like '*main.py*' } |
     ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
@@ -34,4 +34,4 @@ Start-Process -FilePath $PY `
     -WorkingDirectory $ROOT `
     -WindowStyle Normal
 
-Write-Output "Kaizumi started (single instance)."
+Write-Output "Becko started (single instance)."

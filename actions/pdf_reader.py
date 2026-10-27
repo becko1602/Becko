@@ -1,5 +1,5 @@
 # actions/pdf_reader.py
-# Kaizumi — PDF reader + lightweight RAG (extract, chunk, Gemini QA)
+# Becko — PDF reader + lightweight RAG (extract, chunk, Gemini QA)
 
 import json
 import re
@@ -111,7 +111,7 @@ def _ask_gemini(question: str, context: str) -> str:
     from google import genai
     client = genai.Client(api_key=_get_api_key())
     prompt = (
-        "You are Kaizumi. Answer the user's question using ONLY the document "
+        "You are Becko. Answer the user's question using ONLY the document "
         "excerpt below. Be accurate and concise (max 4 sentences). If the answer "
         "is not in the excerpt, say you couldn't find it in the document.\n\n"
         f"DOCUMENT EXCERPT:\n{context}\n\n"

@@ -1,5 +1,5 @@
 """
-resilience.py — Tool execution hardening for Kaizumi.
+resilience.py — Tool execution hardening for Becko.
 ------------------------------------------------------
 Adds:
   - ToolResult: structured outcome of a tool call (ok / content / kind / timing).

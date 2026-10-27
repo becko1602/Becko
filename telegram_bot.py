@@ -1,5 +1,5 @@
 # telegram_bot.py
-# Kaizumi — Telegram remote-control bot.
+# Becko — Telegram remote-control bot.
 #
 # Plain HTTP long-polling (no extra deps). Only the owner's chat_id is allowed.
 # Supports text commands and voice messages (transcribed via Gemini).
@@ -208,7 +208,7 @@ def ping_bot(token: str) -> bool:
 BOT_COMMANDS = [
     {"command": "start",       "description": "Start assistant and show help"},
     {"command": "help",        "description": "Help and command examples"},
-    {"command": "status",      "description": "Check Kaizumi status and state"},
+    {"command": "status",      "description": "Check Becko status and state"},
     {"command": "mode",        "description": "Switch mode (normal, girlfriend, butler...)"},
     {"command": "voice",       "description": "Switch voice (Gemini voice models)"},
     {"command": "mute",        "description": "Mute microphone input"},

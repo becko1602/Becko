@@ -124,7 +124,7 @@ def _analyze_image_text(image_bytes: bytes, mime_type: str, user_text: str, mode
         http_options={"api_version": "v1beta"}
     )
     prompt = (
-        "You are Kaizumi's vision module. Analyze the attached image and answer "
+        "You are Becko's vision module. Analyze the attached image and answer "
         "the user's question. Be concise, accurate, and address the user as 'sir'. "
         "Max 2-3 short sentences. The main assistant will relay your answer.\n\n"
         f"User's question: {user_text}"
@@ -176,7 +176,7 @@ def screen_process(
     print(f"[ScreenProcess] 📦 {len(image_bytes)} bytes → analyzing")
     answer = _analyze_image_text(image_bytes, mime_type, user_text)
     if player:
-        player.write_log(f"Kaizumi: {answer}")
+        player.write_log(f"Becko: {answer}")
     print(f"[ScreenProcess] 💬 {answer}")
     return answer
 

@@ -20,19 +20,19 @@ class ApiKeysTest(unittest.TestCase):
 
     def setUp(self):
         self._old_path = api_keys.CONFIG_PATH
-        self._old_env_key = os.environ.get("KAIZUMI_GEMINI_API_KEY")
-        self._old_env_keys = os.environ.get("KAIZUMI_GEMINI_API_KEYS")
+        self._old_env_key = os.environ.get("BECKO_GEMINI_API_KEY")
+        self._old_env_keys = os.environ.get("BECKO_GEMINI_API_KEYS")
         if self._old_env_key is None:
-            os.environ.pop("KAIZUMI_GEMINI_API_KEY", None)
+            os.environ.pop("BECKO_GEMINI_API_KEY", None)
         if self._old_env_keys is None:
-            os.environ.pop("KAIZUMI_GEMINI_API_KEYS", None)
+            os.environ.pop("BECKO_GEMINI_API_KEYS", None)
 
     def tearDown(self):
         api_keys.CONFIG_PATH = self._old_path
-        for name in ("KAIZUMI_GEMINI_API_KEY", "KAIZUMI_GEMINI_API_KEYS"):
-            if name == "KAIZUMI_GEMINI_API_KEY" and self._old_env_key is not None:
+        for name in ("BECKO_GEMINI_API_KEY", "BECKO_GEMINI_API_KEYS"):
+            if name == "BECKO_GEMINI_API_KEY" and self._old_env_key is not None:
                 os.environ[name] = self._old_env_key
-            elif name == "KAIZUMI_GEMINI_API_KEYS" and self._old_env_keys is not None:
+            elif name == "BECKO_GEMINI_API_KEYS" and self._old_env_keys is not None:
                 os.environ[name] = self._old_env_keys
             else:
                 os.environ.pop(name, None)
@@ -59,12 +59,12 @@ class ApiKeysTest(unittest.TestCase):
 
     def test_env_key_included(self):
         self._write_config({"gemini_api_key": "AIzaA"})
-        os.environ["KAIZUMI_GEMINI_API_KEY"] = "AIzaEnv"
+        os.environ["BECKO_GEMINI_API_KEY"] = "AIzaEnv"
         self.assertIn("AIzaEnv", api_keys.get_all_keys())
 
     def test_env_list_included(self):
         self._write_config({"gemini_api_key": "AIzaA"})
-        os.environ["KAIZUMI_GEMINI_API_KEYS"] = "AIzaEnv1,AIzaEnv2"
+        os.environ["BECKO_GEMINI_API_KEYS"] = "AIzaEnv1,AIzaEnv2"
         keys = api_keys.get_all_keys()
         self.assertIn("AIzaEnv1", keys)
         self.assertIn("AIzaEnv2", keys)

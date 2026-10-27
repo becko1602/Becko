@@ -28,7 +28,7 @@ class AudioHardwareResilienceTest(unittest.TestCase):
     def test_listen_audio_does_not_crash_when_sounddevice_is_none(self):
         import main
         ui_mock = MagicMock()
-        live = main.KaizumiLive(ui_mock)
+        live = main.BeckoLive(ui_mock)
 
         # Patch sd to None and ensure _listen_audio doesn't raise
         with patch.object(main, "sd", None):
@@ -47,7 +47,7 @@ class AudioHardwareResilienceTest(unittest.TestCase):
     def test_play_audio_does_not_crash_when_sounddevice_is_none(self):
         import main
         ui_mock = MagicMock()
-        live = main.KaizumiLive(ui_mock)
+        live = main.BeckoLive(ui_mock)
         live.audio_in_queue = asyncio.Queue()
 
         with patch.object(main, "sd", None):
@@ -69,7 +69,7 @@ class HumanConsentVerificationTest(unittest.TestCase):
     def test_confirm_without_human_approval_is_blocked(self):
         import main
         ui_mock = MagicMock()
-        live = main.KaizumiLive(ui_mock)
+        live = main.BeckoLive(ui_mock)
 
         tok = issue_confirmation_token("cmd_control", {"command": "dir"})
         # LLM attempts to re-invoke tool with token but human has NOT said yes
@@ -83,7 +83,7 @@ class HumanConsentVerificationTest(unittest.TestCase):
     def test_confirm_with_human_approval_proceeds(self):
         import main
         ui_mock = MagicMock()
-        live = main.KaizumiLive(ui_mock)
+        live = main.BeckoLive(ui_mock)
 
         tok = issue_confirmation_token("cmd_control", {"command": "dir"})
         # Human explicitly says yes
@@ -102,7 +102,7 @@ class TelegramNullCheckTest(unittest.TestCase):
     def test_telegram_loop_exits_cleanly_if_chat_id_is_none(self):
         import main
         ui_mock = MagicMock()
-        live = main.KaizumiLive(ui_mock)
+        live = main.BeckoLive(ui_mock)
         live.telegram_token = "123:ABC"
         live.telegram_chat = None
 

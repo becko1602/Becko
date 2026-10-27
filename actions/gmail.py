@@ -1,5 +1,5 @@
 # actions/gmail.py
-# Kaizumi — Gmail (send + read recent mail via SMTP/IMAP app password)
+# Becko — Gmail (send + read recent mail via SMTP/IMAP app password)
 
 import json
 import re
@@ -197,7 +197,7 @@ def gmail_action(
             try:
                 if action in ("send", "compose"):
                     to      = str(params.get("to", "")).strip()
-                    subject = str(params.get("subject", "")).strip() or "From Kaizumi"
+                    subject = str(params.get("subject", "")).strip() or "From Becko"
                     body    = str(params.get("body", "")).strip()
                     if not to:
                         return "I need the recipient's email address, sir."
@@ -214,7 +214,7 @@ def gmail_action(
     try:
         if action in ("send", "compose"):
             to      = str(params.get("to", "")).strip()
-            subject = str(params.get("subject", "")).strip() or "From Kaizumi"
+            subject = str(params.get("subject", "")).strip() or "From Becko"
             body    = str(params.get("body", "")).strip()
             if not to:
                 return "I need the recipient's email address, sir."

@@ -1,4 +1,4 @@
-﻿import shlex
+import shlex
 import subprocess
 import sys
 import json
@@ -15,7 +15,7 @@ def get_base_dir():
 
 BASE_DIR         = get_base_dir()
 API_CONFIG_PATH  = BASE_DIR / "config" / "api_keys.json"
-PROJECTS_DIR     = Path.home() / "Desktop" / "KaizumiProjects"
+PROJECTS_DIR     = Path.home() / "Desktop" / "BeckoProjects"
 MAX_FIX_ATTEMPTS = 5
 MODEL_PLANNER    = "gemini-2.5-flash"
 MODEL_WRITER     = "gemini-2.5-flash"
@@ -477,7 +477,7 @@ def _build_project(
         if speak: speak(msg)
         return msg
 
-    proj_name    = project_name or plan.get("project_name", "kaizumi_project")
+    proj_name    = project_name or plan.get("project_name", "becko_project")
     proj_name    = re.sub(r"[^\w\-]", "_", proj_name)
     project_dir  = PROJECTS_DIR / proj_name
     project_dir.mkdir(parents=True, exist_ok=True)

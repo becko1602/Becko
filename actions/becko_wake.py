@@ -1,7 +1,7 @@
-﻿# actions/kaizumi_wake.py
-# Kaizumi — custom wake word "Hey Kaizumi" via a locally-trained classifier.
+# actions/becko_wake.py
+# Becko — custom wake word "Hey Becko" via a locally-trained classifier.
 #
-# Instead of shipping a pre-trained "hey kaizumi" model, we train a small
+# Instead of shipping a pre-trained "hey becko" model, we train a small
 # classifier (openwakeword-compatible: input (B,16,96) embedding windows,
 # output probability) on embeddings produced by the SAME onnx feature
 # extractors openwakeword uses at runtime (melspectrogram.onnx +
@@ -10,9 +10,9 @@
 #
 # Training is fully local + offline. You record a few takes of the phrase
 # (positives) and some background noise / other speech (negatives), then
-# train → a tiny ONNX model is exported to models/hey_kaizumi_v0.1.onnx.
+# train → a tiny ONNX model is exported to models/hey_becko_v0.1.onnx.
 # From then on the (already parameterized) wake_word.py engine loads and
-# runs it exactly like the kaizumi model.
+# runs it exactly like the becko model.
 
 import time
 import threading
@@ -27,7 +27,7 @@ from actions.wake_word import WakeWordService
 BASE_DIR   = Path(__file__).resolve().parent.parent
 MODELS_DIR = BASE_DIR / "models"
 TRAIN_DIR  = MODELS_DIR / "training"
-MODEL_FILE = "hey_kaizumi_v0.1.onnx"
+MODEL_FILE = "hey_becko_v0.1.onnx"
 MODEL_PATH = MODELS_DIR / MODEL_FILE
 
 RATE    = 16000
@@ -46,7 +46,7 @@ def _load_models() -> bool:
         _emb = ort.InferenceSession(str(MODELS_DIR / "embedding_model.onnx"))
         return True
     except Exception as e:
-        print(f"[KaizumiWake] ⚠️ {e}")
+        print(f"[BeckoWake] ⚠️ {e}")
         return False
 
 
@@ -65,7 +65,7 @@ def _embed(samples: np.ndarray) -> np.ndarray | None:
 
 
 def record_dataset(n_pos: int = 20, n_neg: int = 8, seconds: float = 2.0,
-                   prompt: str = "hey kaizumi") -> str:
+                   prompt: str = "hey becko") -> str:
     """Record positive ("<prompt>") and negative (background) training clips."""
     if not _load_models():
         return "Feature models missing in models/, sir."
@@ -81,7 +81,7 @@ def record_dataset(n_pos: int = 20, n_neg: int = 8, seconds: float = 2.0,
 
     def _record_into(folder: Path, tag: str, prompt_line: str):
         p = folder / f"{tag}_{int(time.time() * 1000)}.wav"
-        print(f"\n[KaizumiWake] 🎙 {prompt_line}")
+        print(f"\n[BeckoWake] 🎙 {prompt_line}")
         time.sleep(1.0)
         rec = sd.rec(int(seconds * RATE), samplerate=RATE, channels=CHANNEL, dtype="int16")
         sd.wait()
@@ -90,7 +90,7 @@ def record_dataset(n_pos: int = 20, n_neg: int = 8, seconds: float = 2.0,
         with wave.open(str(p), "wb") as f:
             f.setnchannels(1); f.setsampwidth(2); f.setframerate(RATE)
             f.writeframes(data.tobytes())
-        print(f"[KaizumiWake] ✓ saved {p.name} (peak {peak:.2f})")
+        print(f"[BeckoWake] ✓ saved {p.name} (peak {peak:.2f})")
         return p
 
     try:
@@ -166,7 +166,7 @@ def _load_clips(folder: Path):
 
 
 def train_model(steps: int = 900, root: Path = None, export: Path = None) -> str:
-    """Train the Hey Kaizumi classifier and export an ONNX model."""
+    """Train the Hey Becko classifier and export an ONNX model."""
     root = root or TRAIN_DIR
     export = export or MODEL_PATH
     pos_clips = _load_clips(root / "positive")
@@ -184,7 +184,7 @@ def train_model(steps: int = 900, root: Path = None, export: Path = None) -> str
         neg_windows = np.concatenate([neg_windows] * reps)
 
     pos_windows = _augment(pos_windows, rng)
-    print(f"[KaizumiWake] training windows: pos={len(pos_windows)} neg={len(neg_windows)}")
+    print(f"[BeckoWake] training windows: pos={len(pos_windows)} neg={len(neg_windows)}")
 
     split = min(int(0.2 * len(pos_windows)), len(neg_windows) // 2) or 1
     Xv = np.concatenate([pos_windows[:split], neg_windows[:split]])
@@ -222,7 +222,7 @@ def train_model(steps: int = 900, root: Path = None, export: Path = None) -> str
             with torch.no_grad():
                 pred = (torch.sigmoid(model(xv)) > 0.5).float().squeeze(1)
                 acc = (pred == yvv).float().mean().item()
-            print(f"[KaizumiWake] step {step}/{steps} loss {loss.item():.4f} val_acc {acc:.2f}")
+            print(f"[BeckoWake] step {step}/{steps} loss {loss.item():.4f} val_acc {acc:.2f}")
             if acc > best_acc:
                 best_acc, best_epoch = acc, step
     if best_acc < 0.6:
@@ -241,11 +241,11 @@ def train_model(steps: int = 900, root: Path = None, export: Path = None) -> str
             "Say 'activate wake word' to use it.")
 
 
-class _KaizumiEngine:
+class _BeckoEngine:
     """Drop-in engine: mirrors WakeWordService, plus dataset recording."""
 
     def __init__(self):
-        self._svc = WakeWordService(model_file=MODEL_FILE, phrase="Hey Kaizumi")
+        self._svc = WakeWordService(model_file=MODEL_FILE, phrase="Hey Becko")
 
     @property
     def available(self) -> bool:
@@ -264,7 +264,7 @@ class _KaizumiEngine:
 
     def start(self) -> str:
         if not self.available:
-            return ("Kaizumi wake needs a trained model first, sir. "
+            return ("Becko wake needs a trained model first, sir. "
                     "Say: 'record the wake word', then 'train the wake word'.")
         return self._svc.start()
 
@@ -278,4 +278,4 @@ class _KaizumiEngine:
         return train_model(**kwargs)
 
 
-_matcher = _KaizumiEngine()
+_matcher = _BeckoEngine()

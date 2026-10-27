@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.png" alt="Kaizumi Banner" width="100%">
+  <img src="assets/becko-banner.svg" alt="Becko Banner" width="100%">
 </p>
 
 <p align="center">
@@ -20,20 +20,21 @@
 
 ---
 
-# 🤖 Kaizumi
+# 🤖 Becko
 
-**Kaizumi** is a real-time, voice-driven AI assistant that lives on your Windows
+**Becko** is a real-time, voice-driven AI assistant that lives on your Windows
 computer. It can **hear** you, **see** your screen, understand context, answer
 with a **natural human-like voice**, and **take action** — launching apps,
 managing files, running commands, sending messages, controlling smart-home
 devices, creating presentations, and much more.
 
-Kaizumi runs **locally** on your Windows machine; AI inference and optional
+Becko runs **locally** on your Windows machine; AI inference and optional
 integrations (Gemini, Telegram, Google, weather, flights, smart home) use
 external APIs. It is **free to self-host** — you only need a Gemini API key
 (free tier available at [Google AI Studio](https://aistudio.google.com/apikey)).
 
-> 👤 **Project owner:** Musayev Doniyor ([GitHub](https://github.com/MusayevDoniyor)) · nick **Kaizo**
+> **Becko customization:** Behruzbek Bekchanov ([becko1602](https://github.com/becko1602)).
+> Based on [Kaizumi by Musayev Doniyor](https://github.com/MusayevDoniyor/kaizumi), released under the MIT License. Original copyright and attribution are preserved.
 
 > ⚠️ **Security note:** This project was made public from a personal codebase.
 > Before your first run, open `config/api_keys.json` and confirm it only
@@ -43,7 +44,7 @@ external APIs. It is **free to self-host** — you only need a Gemini API key
 
 ## ✨ Features
 
-| Area | What Kaizumi does |
+| Area | What Becko does |
 |------|-------------------|
 | 🎙️ **Real-time voice** | Natural, low-latency speech-to-speech conversation in any language |
 | 👁️ **Visual awareness** | Screen analysis, screenshot understanding, webcam vision, click-on-command |
@@ -53,7 +54,7 @@ external APIs. It is **free to self-host** — you only need a Gemini API key
 | 🕐 **Guardian** | Watches battery, RAM, CPU, disk, and temperature; alerts on thresholds |
 | 🗓️ **Google integration** | Gmail, Calendar, Drive via OAuth (device flow) |
 | 🧩 **53 tools** | Web search, reminders, PDF/Word/Excel/PowerPoint, YouTube, weather, translation, and more |
-| 🎭 **Modes & moods** | 6 modes × 4 moods change Kaizumi's personality |
+| 🎭 **Modes & moods** | 6 modes × 4 moods change Becko's personality |
 | 🎨 **Themed UI** | 4 themes (cyber, ocean, aurora, sunset) + animated canvas |
 | 🔊 **30+ voices** | Pick from 30 Gemini voices (male/female, warm/clear/soft…) |
 | 🔇 **Hotkeys** | `F4` mute, `F5` cycle theme |
@@ -63,6 +64,17 @@ external APIs. It is **free to self-host** — you only need a Gemini API key
 | 🔒 **Safety gate** | Central risk model — HIGH-risk actions need your verbal confirmation |
 
 ---
+
+## Becko changes
+
+- Becko branding throughout the desktop interface, prompts, logs and launcher.
+- **Charon (male)** is the default voice; saved voice choices remain respected. Use `/voice Charon` to change an existing preference, or `/voice default` to reset it.
+- One shared voice catalog keeps the UI, Telegram controls and Live API consistent.
+- Malformed saved voice preferences fall back to Charon instead of crashing.
+- API keys are trimmed and deduplicated; environment keys take priority over the config file. Legacy `KAIZUMI_GEMINI_API_KEY(S)` variables are still accepted.
+- The wake phrase is now **Hey Becko**. Record and train a new local wake model; renaming does not retrain an existing model.
+
+**Platform:** this remains a Windows application. Arch Linux support for desktop control has not been implemented or tested. Live audio requires your own Gemini API key and a microphone; no credentials are included.
 
 ## 📦 Requirements
 
@@ -76,8 +88,8 @@ external APIs. It is **free to self-host** — you only need a Gemini API key
 ## 🚀 Quick Start
 
 ```bash
-git clone https://github.com/MusayevDoniyor/kaizumi.git
-cd kaizumi
+git clone https://github.com/becko1602/Becko.git
+cd Becko
 
 python -m venv .venv
 .venv\Scripts\activate
@@ -107,10 +119,10 @@ Secrets can also be provided as environment variables (docker/CI friendly):
 
 | Env var | Replaces |
 |---------|----------|
-| `KAIZUMI_GEMINI_API_KEY` | `gemini_api_key` |
-| `KAIZUMI_GEMINI_API_KEYS` | `gemini_api_keys` (comma-separated) |
-| `KAIZUMI_TELEGRAM_TOKEN` | `telegram_bot_token` |
-| `KAIZUMI_TELEGRAM_CHAT_ID` | `telegram_chat_id` |
+| `BECKO_GEMINI_API_KEY` | `gemini_api_key` |
+| `BECKO_GEMINI_API_KEYS` | `gemini_api_keys` (comma-separated) |
+| `BECKO_TELEGRAM_TOKEN` | `telegram_bot_token` |
+| `BECKO_TELEGRAM_CHAT_ID` | `telegram_chat_id` |
 
 System ready in minutes.
 
@@ -153,7 +165,7 @@ plus a per-device config (rooms, switches, lights, thermostats…).
 
 ## 📱 Remote Control
 
-Kaizumi includes Telegram remote control out of the box. It routes commands
+Becko includes Telegram remote control out of the box. It routes commands
 through the **same Gemini Live session** as local voice, so every tool, the safety
 gate, and memory behave identically from anywhere in the world.
 
@@ -171,7 +183,7 @@ gate, and memory behave identically from anywhere in the world.
 }
 ```
 
-Kaizumi starts polling automatically and **only responds to your chat id**.
+Becko starts polling automatically and **only responds to your chat id**.
 Built-in commands: `/status`, `/mute`, `/unmute`, `/mode`, `/voice`,
 `/screenshot`, `/help` — plus quick-reply keyboards. Voice notes are
 transcribed on the fly.
@@ -180,13 +192,13 @@ transcribed on the fly.
 
 ## 🛡️ Safety model
 
-Kaizumi classifies every tool into **LOW / MEDIUM / HIGH** risk (`safety.py`)
+Becko classifies every tool into **LOW / MEDIUM / HIGH** risk (`safety.py`)
 and enforces it centrally — no per-tool ad-hoc checks.
 
 - **HIGH-risk actions** (delete/move files, run terminal commands, send
   email/SMS, kill processes, auto-update games, shutdown/restart, drive
   deletes, …) **require your explicit verbal confirmation** before they run.
-- When a high-risk tool is requested, Kaizumi asks *"May I …?"* and waits for
+- When a high-risk tool is requested, Becko asks *"May I …?"* and waits for
   an explicit **yes** before re-invoking the action.
 - The model is instructed to **never set `confirm=true` on its own** — only
   after you approve. This is *enforced technically*, not just by instruction:
@@ -205,7 +217,7 @@ and enforces it centrally — no per-tool ad-hoc checks.
 
 ## 🧩 Tools
 
-Kaizumi exposes **53 tools** to the model. The full list lives in `main.py`
+Becko exposes **53 tools** to the model. The full list lives in `main.py`
 (`_build_tool_schemas`); highlights:
 
 | Category | Tools |
@@ -254,7 +266,7 @@ timeouts and a loop guard that stops identical-arg / ping-pong tool loops.
 - **In-app scheduler** (`main._scheduler_loop`) fires reminders with speech +
   desktop notification — no Windows Task Scheduler needed.
 - **Wake word** (`actions/wake_word.py`) uses openwakeword on-device for
-  hands-free "Hey Kaizumi" activation (you can record your own wake word).
+  hands-free "Hey Becko" activation (you can record your own wake word).
 - **Logging** (`logger.py`) writes one log file per run under `logs/` and
   redacts secrets.
 
@@ -263,7 +275,7 @@ timeouts and a loop guard that stops identical-arg / ping-pong tool loops.
 ## 📁 Project structure
 
 ```
-kaizumi/
+becko/
 ├── main.py                    # engine: Gemini Live session, tools, scheduler
 ├── ui.py                      # Tkinter animated UI, setup dialog, themes
 ├── telegram_bot.py            # Telegram long-polling transport

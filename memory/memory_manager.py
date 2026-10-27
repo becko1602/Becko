@@ -1,5 +1,5 @@
-﻿"""
-memory_manager.py — Kaizumi Hafıza Sistemi
+"""
+memory_manager.py — Becko Hafıza Sistemi
 ============================================
 Düzeltmeler:
   - _MEMORY_EVERY_N_TURNS: 3 → 1 (her turda kontrol)
@@ -169,8 +169,8 @@ def should_extract_memory(user_text: str, assistant_text: str, api_key: str) -> 
 
         client = genai.Client(api_key=api_key)
 
-        # Her iki tarafı da gönder — Kaizumi'nin söyledikleri de bilgi içerebilir
-        combined = f"User: {user_text[:300]}\nKaizumi: {assistant_text[:200]}"
+        # Her iki tarafı da gönder — Becko'nin söyledikleri de bilgi içerebilir
+        combined = f"User: {user_text[:300]}\nBecko: {assistant_text[:200]}"
 
         prompt = (
             "Does this conversation contain ANY of the following?\n"
@@ -202,7 +202,7 @@ def extract_memory(user_text: str, assistant_text: str, api_key: str) -> dict:
 
         client = genai.Client(api_key=api_key)
 
-        combined = f"User: {user_text[:500]}\nKaizumi: {assistant_text[:300]}"
+        combined = f"User: {user_text[:500]}\nBecko: {assistant_text[:300]}"
 
         prompt = (
             "Extract ALL memorable personal facts from this conversation. Any language.\n"
@@ -214,20 +214,20 @@ def extract_memory(user_text: str, assistant_text: str, api_key: str) -> dict:
             "                  favorite_game, favorite_sport, favorite_book, favorite_artist,\n"
             "                  favorite_country, hobbies, interests, dislikes, etc.\n"
             "  projects      → projects being built, ongoing work, goals, ideas in progress\n"
-            "                  (e.g. kaizumi: 'Building a personal AI assistant')\n"
+            "                  (e.g. becko: 'Building a personal AI assistant')\n"
             "  relationships → people mentioned: friends, family, partner, colleagues\n"
             "                  (e.g. best_friend_ali: 'Best friend, met in university')\n"
             "  wishes        → future plans, things to buy, travel plans, dreams\n"
             "  notes         → anything else worth remembering (habits, schedule, etc.)\n\n"
             "IMPORTANT:\n"
             "- Be LIBERAL: if something MIGHT be worth remembering, include it.\n"
-            "- Extract from BOTH user and Kaizumi turns.\n"
+            "- Extract from BOTH user and Becko turns.\n"
             "- Skip: weather, reminders, search results, one-time commands.\n"
             "- Use concise English values regardless of conversation language.\n\n"
             "Format:\n"
             '{"identity":{"name":{"value":"Ali"}},\n'
             ' "preferences":{"favorite_color":{"value":"blue"}, "hobby":{"value":"gaming"}},\n'
-            ' "projects":{"kaizumi":{"value":"Personal AI assistant on Windows"}},\n'
+            ' "projects":{"becko":{"value":"Personal AI assistant on Windows"}},\n'
             ' "relationships":{"friend_yusuf":{"value":"close friend"}},\n'
             ' "wishes":{"buy_guitar":{"value":"wants an acoustic guitar"}},\n'
             ' "notes":{"works_at_night":{"value":"usually active late at night"}}}\n\n'

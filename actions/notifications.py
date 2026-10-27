@@ -1,5 +1,5 @@
 # actions/notifications.py
-# Kaizumi — Windows toast notifications + native notifications
+# Becko — Windows toast notifications + native notifications
 
 import sys
 
@@ -19,7 +19,7 @@ def notify(
     """Show a Windows toast notification.
     params: title (optional), message (required)"""
     params  = parameters or {}
-    title   = str(params.get("title", "Kaizumi")).strip() or "Kaizumi"
+    title   = str(params.get("title", "Becko")).strip() or "Becko"
     message = str(params.get("message", "")).strip()
     if not message:
         return "No notification message provided, sir."
@@ -27,7 +27,7 @@ def notify(
     if _WINOTIFY:
         try:
             note = Notification(
-                app_id="Kaizumi",
+                app_id="Becko",
                 title=title,
                 msg=message,
                 duration="short",

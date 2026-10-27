@@ -17,7 +17,7 @@ logs/
 # Personal / user data — never share this project with these files
 memory/*.json
 models/hey_jarvis*
-models/hey_kaizumi*
+models/hey_becko*
 models/training/
 
 # Local runtime state
@@ -42,8 +42,12 @@ Thumbs.db
 .DS_Store
 
 # Generated wake word assets (re-trained locally)
-models/hey_kaizumi_v0.1.onnx
-models/hey_kaizumi_v0.1.onnx.data
+models/hey_becko_v0.1.onnx
+models/hey_becko_v0.1.onnx.data
 
 # Reference clone for study (openjarvis)
 openjarvis_example/
+
+
+# Legacy local wake models must remain private after migration
+models/hey_kaizumi*

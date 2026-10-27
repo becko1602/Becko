@@ -114,19 +114,19 @@ class ApiKeysExistTest(unittest.TestCase):
         import ui
         self._tmp = tempfile.TemporaryDirectory()
         self._old_file = ui.API_FILE
-        self._old_env = os.environ.get("KAIZUMI_GEMINI_API_KEY")
-        self._old_env2 = os.environ.get("KAIZUMI_GEMINI_API_KEYS")
-        os.environ.pop("KAIZUMI_GEMINI_API_KEY", None)
-        os.environ.pop("KAIZUMI_GEMINI_API_KEYS", None)
+        self._old_env = os.environ.get("BECKO_GEMINI_API_KEY")
+        self._old_env2 = os.environ.get("BECKO_GEMINI_API_KEYS")
+        os.environ.pop("BECKO_GEMINI_API_KEY", None)
+        os.environ.pop("BECKO_GEMINI_API_KEYS", None)
         ui.API_FILE = Path(self._tmp.name) / "api_keys.json"
         self.ui = ui
 
     def tearDown(self):
         self.ui.API_FILE = self._old_file
         if self._old_env is not None:
-            os.environ["KAIZUMI_GEMINI_API_KEY"] = self._old_env
+            os.environ["BECKO_GEMINI_API_KEY"] = self._old_env
         if self._old_env2 is not None:
-            os.environ["KAIZUMI_GEMINI_API_KEYS"] = self._old_env2
+            os.environ["BECKO_GEMINI_API_KEYS"] = self._old_env2
         self._tmp.cleanup()
 
     def _write(self, content: str):
@@ -138,7 +138,7 @@ class ApiKeysExistTest(unittest.TestCase):
             pass
         inst = Stub()
         from types import MethodType
-        inst._api_keys_exist = MethodType(self.ui.KaizumiUI._api_keys_exist, inst)
+        inst._api_keys_exist = MethodType(self.ui.BeckoUI._api_keys_exist, inst)
         return inst._api_keys_exist()
 
     def test_empty_file_is_not_ready(self):

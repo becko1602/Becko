@@ -1,5 +1,5 @@
 # actions/open_app.py
-# Kaizumi — Cross-Platform App Launcher
+# Becko — Cross-Platform App Launcher
 
 import time
 import os

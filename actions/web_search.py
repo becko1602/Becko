@@ -1,5 +1,5 @@
 # actions/web_search.py
-# Kaizumi — Web Search
+# Becko — Web Search
 # Primary: Gemini google_search (yeni google.genai SDK)
 # Fallback: DuckDuckGo (ddgs)
 

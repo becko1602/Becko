@@ -1,5 +1,5 @@
 # actions/translate.py
-# Kaizumi — translate any text between languages via Gemini
+# Becko — translate any text between languages via Gemini
 
 import json
 import sys

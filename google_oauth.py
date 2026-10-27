@@ -85,7 +85,7 @@ _PAGE = """<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kaizumi</title>
+<title>Becko</title>
 <style>
   body { margin:0; font-family:'Segoe UI',Arial,sans-serif;
          background:radial-gradient(1200px 600px at 50% -100px,#2b1e4e,#0e0f1a 70%); }
@@ -115,14 +115,14 @@ _PAGE = """<!DOCTYPE html>
 
 def _result_page(ok: bool) -> bytes:
     if ok:
-        title   = "Kaizumi ulandi!"
+        title   = "Becko ulandi!"
         subtext = ("Google hisobingiz muvaffaqiyatli bog&#8216;landi. "
                    "Endi Telegram orqali email, kalendar va Drive "
                    "buyruqlarini bera olasiz.")
     else:
         title   = "Avtorizatsiya amalga oshmadi"
         subtext = ("Ro&#8216;yxatga qayting va qaytadan urinib ko&#8216;ring. "
-                   "Agar xato davom etsa, Kaizumi jurnalini tekshiring.")
+                   "Agar xato davom etsa, Becko jurnalini tekshiring.")
     return _PAGE.replace("%TITLE%", title).replace("%SUBTEXT%", subtext).encode("utf-8")
 
 
@@ -150,7 +150,7 @@ def auth_browser(timeout_seconds: int = 240) -> dict:
         creds = flow.run_local_server(
             host="localhost", port=0,
             open_browser=True,
-            success_message="Kaizumi ulandi! Bu oynani yopishingiz mumkin. ✅",
+            success_message="Becko ulandi! Bu oynani yopishingiz mumkin. ✅",
         )
     except TypeError:
         creds = flow.run_local_server(

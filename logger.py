@@ -68,7 +68,7 @@ def setup_logger(base_dir) -> Path:
 
     log_dir = Path(base_dir) / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
-    log_file = log_dir / f"kaizumi-{datetime.now():%Y-%m-%d_%H-%M-%S}.log"
+    log_file = log_dir / f"becko-{datetime.now():%Y-%m-%d_%H-%M-%S}.log"
 
     _LOGFILE = _FileMirror(log_file)
 
@@ -79,7 +79,7 @@ def setup_logger(base_dir) -> Path:
     sys.stderr = _Tee(_PRIMARY_ERR, _LOGFILE)
 
     log("=" * 60)
-    log(f"Kaizumi started — log file: {log_file}")
+    log(f"Becko started — log file: {log_file}")
     log(f"Python {sys.version.split()[0]} | running from {Path(base_dir)}")
     log("=" * 60)
     return log_file

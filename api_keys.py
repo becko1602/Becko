@@ -55,31 +55,32 @@ def _save_state() -> None:
         pass
 
 
-def get_all_keys() -> list:
+def get_all_keys(config_path: Path | None = None) -> list[str]:
+    """Load trimmed, unique keys: Becko env, legacy env, then config."""
     keys = []
-    # Environment variables first (dev / CI / docker friendly).
-    env_key = os.environ.get("KAIZUMI_GEMINI_API_KEY", "").strip()
-    env_keys = os.environ.get("KAIZUMI_GEMINI_API_KEYS", "").strip()
-    if env_key:
-        keys.append(env_key)
-    if env_keys:
-        keys.extend(k.strip() for k in env_keys.split(",") if k.strip())
+    for prefix in ("BECKO", "KAIZUMI"):
+        single = os.environ.get(f"{prefix}_GEMINI_API_KEY", "")
+        multiple = os.environ.get(f"{prefix}_GEMINI_API_KEYS", "")
+        keys.append(single)
+        keys.extend(multiple.split(","))
     try:
-        cfg = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
-    except Exception:
+        cfg = json.loads((config_path if config_path is not None else CONFIG_PATH).read_text(encoding="utf-8"))
+    except (OSError, ValueError, UnicodeError):
         cfg = {}
-    lst = cfg.get("gemini_api_keys")
-    if isinstance(lst, list):
-        keys.extend(k for k in lst if isinstance(k, str) and k.strip())
-    single = cfg.get("gemini_api_key")
-    if isinstance(single, str) and single.strip():
-        keys.insert(0, single)
-    seen, out = set(), []
-    for k in keys:
-        if k not in seen:
-            seen.add(k)
-            out.append(k)
-    return out
+    if isinstance(cfg, dict):
+        keys.append(cfg.get("gemini_api_key"))
+        multiple = cfg.get("gemini_api_keys")
+        if isinstance(multiple, list):
+            keys.extend(multiple)
+    seen, result = set(), []
+    for value in keys:
+        if not isinstance(value, str):
+            continue
+        value = value.strip()
+        if value and value not in seen:
+            seen.add(value)
+            result.append(value)
+    return result
 
 
 def mark_exhausted(key: str) -> None:

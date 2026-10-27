@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 import threading
 import json
 import sys
@@ -28,7 +28,11 @@ except ModuleNotFoundError:
     genai = None
     types = None
 
-from ui import KaizumiUI
+from assistant_settings import (
+    DEFAULT_VOICE, VOICES, VOICE_NAMES, normalize_voice as _normalize_voice,
+    get_voice_from_memory as _get_voice_from_memory,
+)
+from ui import BeckoUI
 from memory.memory_manager import (
     load_memory, update_memory, format_memory_for_prompt,
     should_extract_memory, extract_memory
@@ -54,7 +58,7 @@ THINKING_LEVEL      = "low"  # Gemini 3.1 thinking depth: minimal | low | medium
 TG_MODEL            = "gemini-2.5-flash"
 
 TG_HELP_TEXT = (
-    "🤖 <b>Kaizumi — Telegram remote control</b>\n"
+    "🤖 <b>Becko — Telegram remote control</b>\n"
     "Yozing, men bajaraman. Misollar:\n"
     "• <code>notepadni och</code>\n"
     "• <code>Toshkent ob-havosi</code>\n"
@@ -170,40 +174,6 @@ def _normalize_mode(text) -> str:
     return m if m in valid else ""
 
 
-VOICES = {
-    "Achernar":      "mayin (Soft)",
-    "Achird":        "do'stona (Friendly)",
-    "Algenib":       "bo'g'iq (Gravelly)",
-    "Algieba":       "silliq (Smooth)",
-    "Alnilam":       "qat'iy (Firm)",
-    "Aoede":         "engil ayol (Breezy)",
-    "Autonoe":       "yorqin (Bright)",
-    "Callirrhoe":    "erkin (Easy-going)",
-    "Charon":        "chuqur erkak (Informative)",
-    "Despina":       "silliq (Smooth)",
-    "Enceladus":     "nafasli (Breathy)",
-    "Erinome":       "aniq (Clear)",
-    "Fenrir":        "qattiq erkak (Excitable)",
-    "Gacrux":        "etuk (Mature)",
-    "Iapetus":       "aniq (Clear)",
-    "Kore":          "jonli ayol (Firm)",
-    "Laomedeia":     "quvnoq (Upbeat)",
-    "Leda":          "yoshlik (Youthful)",
-    "Orus":          "qat'iy erkak (Firm)",
-    "Puck":          "quvnoq erkak (Upbeat)",
-    "Pulcherrima":   "dadil (Forward)",
-    "Rasalgethi":    "ma'lumotli (Informative)",
-    "Sadachbia":     "jonli (Lively)",
-    "Sadaltager":    "bilimdon (Knowledgeable)",
-    "Schedar":       "tinch (Even)",
-    "Sulafat":       "iliq (Warm)",
-    "Umbriel":       "erkin (Easy-going)",
-    "Vindemiatrix":  "muloyim (Gentle)",
-    "Zephyr":        "yorqin ayol (Bright)",
-    "Zubenelgenubi": "oddiy (Casual)",
-}
-VOICE_NAMES = list(VOICES.keys())
-
 TG_VOICE_KEYBOARD = {
     "inline_keyboard": [
         [
@@ -215,20 +185,6 @@ TG_VOICE_KEYBOARD = {
 }
 
 
-def _normalize_voice(text) -> str:
-    """Map user wording to a canonical Gemini voice name, or '' if unknown."""
-    v = (str(text or "").strip().lower()
-         .replace("-", " ").replace("_", " "))
-    aliases = {
-        "default": "Aoede", "auto": "Aoede", "standart": "Aoede",
-        "normal": "Aoede", "classic": "Aoede",
-        "aoede": "Aoede", "charon": "Charon", "fenrir": "Fenrir",
-        "kore": "Kore", "puck": "Puck", "zephyr": "Zephyr",
-        "ayol": "Aoede", "erkak": "Charon",
-    }
-    v = aliases.get(v, v.title())
-    return v if v in VOICE_NAMES else ""
-
 
 def _get_style_from_memory(memory: dict | None) -> tuple[str, str]:
     """
@@ -239,6 +195,9 @@ def _get_style_from_memory(memory: dict | None) -> tuple[str, str]:
         return ("normal", "calm")
 
     prefs = memory.get("preferences", {}) if isinstance(memory, dict) else {}
+
+    if not isinstance(prefs, dict):
+        prefs = {}
 
     mode_entry = prefs.get("assistant_mode")
     mood_entry = prefs.get("assistant_mood")
@@ -257,14 +216,6 @@ def _get_style_from_memory(memory: dict | None) -> tuple[str, str]:
     return (mode, mood)
 
 
-def _get_voice_from_memory(memory: dict | None) -> str:
-    """Returns the saved Gemini voice name (defaults to Aoede)."""
-    prefs = memory.get("preferences", {}) if isinstance(memory, dict) else {}
-    entry = prefs.get("assistant_voice")
-    voice = entry.get("value") if isinstance(entry, dict) else entry
-    voice = _normalize_voice(voice)
-    return voice or "Aoede"
-
 
 def _get_api_key() -> str:
     from api_keys import next_key
@@ -281,7 +232,7 @@ def _load_system_prompt() -> str:
         return PROMPT_PATH.read_text(encoding="utf-8")
     except Exception:
         return (
-            "You are Kaizumi, a sharp and efficient AI assistant. "
+            "You are Becko, a sharp and efficient AI assistant. "
             "Be concise, direct, and always use the provided tools to complete tasks. "
             "Never simulate or guess results — always call the appropriate tool."
         )
@@ -670,7 +621,7 @@ TOOL_DECLARATIONS = [
     {
         "name": "set_mode",
         "description": (
-            "Sets Kaizumi's conversation mode/persona. "
+            "Sets Becko's conversation mode/persona. "
             "Use when the user says things like: "
             "'girlfriend mode', 'normal mode', 'crazy friend', 'butler mode', "
             "'engaging mode', 'switch your mode', 'o'zgartir'. "
@@ -691,7 +642,7 @@ TOOL_DECLARATIONS = [
     {
         "name": "set_voice",
         "description": (
-            "Changes Kaizumi's speaking voice (Gemini prebuilt voices). "
+            "Changes Becko's speaking voice (Gemini prebuilt voices). "
             "Use when the user asks to change/switch the voice, or says "
             "'ovozni o'zgartir', 'boshqa ovoz', 'speak with a male voice', "
             "'sounds too robotic'. This persists across sessions and takes "
@@ -712,7 +663,7 @@ TOOL_DECLARATIONS = [
     {
         "name": "set_mood",
         "description": (
-            "Sets Kaizumi's mood/energy within the current mode. "
+            "Sets Becko's mood/energy within the current mode. "
             "Use when the user asks for calmer, more playful, more romantic, or stricter tone. "
             "This persists across sessions."
         ),
@@ -873,7 +824,7 @@ TOOL_DECLARATIONS = [
             "type": "OBJECT",
             "properties": {
                 "message": {"type": "STRING", "description": "The notification message text (required)"},
-                "title":   {"type": "STRING", "description": "Optional title (default: Kaizumi)"}
+                "title":   {"type": "STRING", "description": "Optional title (default: Becko)"}
             },
             "required": ["message"]
         }
@@ -898,7 +849,7 @@ TOOL_DECLARATIONS = [
         "name": "schedule",
         "description": (
             "Sets a timed in-app action that fires after a number of seconds. "
-            "When it fires, Kaizumi speaks the message and displays a notification. "
+            "When it fires, Becko speaks the message and displays a notification. "
             "Also lists and cancels pending schedules. "
             "Use for countdowns, 'remind me in X minutes', timers, or delayed tasks."
         ),
@@ -916,11 +867,11 @@ TOOL_DECLARATIONS = [
     {
         "name": "wake_word",
         "description": (
-            "Controls the hands-free wake word listener ('Hey Kaizumi'). "
-            "When active, Kaizumi sleeps until the wake word is said, then listens. "
-            "'record' samples your voice and builds a 'Hey Kaizumi' reference. "
+            "Controls the hands-free wake word listener ('Hey Becko'). "
+            "When active, Becko sleeps until the wake word is said, then listens. "
+            "'record' samples your voice and builds a 'Hey Becko' reference. "
             "Use when the user says 'activate wake word', 'record the wake word', "
-            "'listen for hey kaizumi', or any wake-word command."
+            "'listen for hey becko', or any wake-word command."
         ),
         "parameters": {
             "type": "OBJECT",
@@ -935,7 +886,7 @@ TOOL_DECLARATIONS = [
         "name": "create_presentation",
         "description": (
             "Generates a PowerPoint (.pptx) file from a simple request and saves it "
-            "to Documents/Kaizumi. Use for 'make me a presentation about X', "
+            "to Documents/Becko. Use for 'make me a presentation about X', "
             "'create slides about Y'. Pass the topic as title and the slides with "
             "their bullet points. After creating, tell the user where it was saved."
         ),
@@ -970,7 +921,7 @@ TOOL_DECLARATIONS = [
         "name": "create_spreadsheet",
         "description": (
             "Creates an Excel (.xlsx) spreadsheet with headers and data rows and saves it "
-            "to Documents/Kaizumi. Use for 'make a spreadsheet of ...', "
+            "to Documents/Becko. Use for 'make a spreadsheet of ...', "
             "'create a table with columns ... and these values'. "
             "After creating, tell the user where it was saved."
         ),
@@ -1061,8 +1012,8 @@ TOOL_DECLARATIONS = [
     {
         "name": "autostart",
         "description": (
-            "Controls whether Kaizumi starts automatically at Windows login. "
-            "Actions: status | enable | disable. 'enable' registers Kaizumi in "
+            "Controls whether Becko starts automatically at Windows login. "
+            "Actions: status | enable | disable. 'enable' registers Becko in "
             "the startup list. Use for 'start at login', 'run on startup', 'open automatically'."
         ),
         "parameters": {
@@ -1078,7 +1029,7 @@ TOOL_DECLARATIONS = [
         "description": (
             "Clicks anywhere on the screen by looking at it. Describe the element "
             "to click ('the Send button', 'the Chrome icon', 'the search box') and "
-            "Kaizumi finds it on the screenshot and clicks it. Use for 'click the "
+            "Becko finds it on the screenshot and clicks it. Use for 'click the "
             "Send button', 'press the green button', 'click on the search field'."
         ),
         "parameters": {
@@ -1095,7 +1046,7 @@ TOOL_DECLARATIONS = [
         "name": "monitor_alerts",
         "description": (
             "Sets PC monitoring alerts: warn when CPU, RAM, disk or battery "
-            "crosses a threshold, then Kaizumi speaks + notifies the user. "
+            "crosses a threshold, then Becko speaks + notifies the user. "
             "Actions: list | add | remove | check | status. "
             "Use for 'alert me when cpu goes above 90', 'warn me when my battery "
             "is below 20 percent', 'tell me if ram is high', 'monitor the pc'."
@@ -1336,9 +1287,9 @@ for _decl in TOOL_DECLARATIONS:
                              "before executing this confirmed action.")}
 
 
-class KaizumiLive:
+class BeckoLive:
 
-    def __init__(self, ui: KaizumiUI, enable_bluetooth: bool = False):
+    def __init__(self, ui: BeckoUI, enable_bluetooth: bool = False):
         self.ui             = ui
         self.session        = None
         self.audio_in_queue = None
@@ -1372,13 +1323,13 @@ class KaizumiLive:
         except Exception:
             pass
         # Environment overrides (docker / dev / CI friendly).
-        if os.environ.get("KAIZUMI_TELEGRAM_TOKEN"):
-            self.telegram_token = os.environ["KAIZUMI_TELEGRAM_TOKEN"].strip() or None
-        if os.environ.get("KAIZUMI_TELEGRAM_CHAT_ID"):
+        if os.environ.get("BECKO_TELEGRAM_TOKEN"):
+            self.telegram_token = os.environ["BECKO_TELEGRAM_TOKEN"].strip() or None
+        if os.environ.get("BECKO_TELEGRAM_CHAT_ID"):
             try:
-                self.telegram_chat = int(os.environ["KAIZUMI_TELEGRAM_CHAT_ID"])
+                self.telegram_chat = int(os.environ["BECKO_TELEGRAM_CHAT_ID"])
             except (TypeError, ValueError):
-                self.telegram_chat = os.environ["KAIZUMI_TELEGRAM_CHAT_ID"]
+                self.telegram_chat = os.environ["BECKO_TELEGRAM_CHAT_ID"]
 
         try:
             from actions.wake_word import _service as wake_service
@@ -1413,7 +1364,7 @@ class KaizumiLive:
             def _toggle_wake():
                 try:
                     from actions.wake_word import _pick_engine
-                    from actions.kaizumi_wake import _matcher as kw_matcher
+                    from actions.becko_wake import _matcher as kw_matcher
                     name, eng = _pick_engine()
                     if not eng.available:
                         print("[Tray] ⚠️ Wake word engine not ready:", name)
@@ -1469,7 +1420,7 @@ class KaizumiLive:
                     pystray.MenuItem("📋 Daily Briefing", _brief),
                     pystray.MenuItem("👁 Hide/Show Window", _hide_show),
                     pystray.Menu.SEPARATOR,
-                    pystray.MenuItem("🚪 Quit Kaizumi", _quit, default=True),
+                    pystray.MenuItem("🚪 Quit Becko", _quit, default=True),
                 )
 
             tray_ok   = system_tray.configure_icon(menu_factory)
@@ -1481,7 +1432,7 @@ class KaizumiLive:
 
     def _mark_human_confirmed(self):
         self._human_confirmed = True
-        print("[KAIZUMI] 🛡️ Human confirmation verified out-of-band.")
+        print("[BECKO] 🛡️ Human confirmation verified out-of-band.")
 
     def _on_text_command(self, text: str):
         _words = set(re.findall(r"\w+", (text or "").lower()))
@@ -1508,7 +1459,7 @@ class KaizumiLive:
             voice        = _get_voice_from_memory(memory)
             return (mode, mood, voice)
         except Exception:
-            return ("normal", "calm", "Aoede")
+            return ("normal", "calm", DEFAULT_VOICE)
 
     def _set_phase(self, phase: str):
         with self._phase_lock:
@@ -1552,10 +1503,10 @@ class KaizumiLive:
         except Exception:
             pass
 
-    def _update_rolling(self, user_text: str, kaizumi_text: str):
-        if not user_text and not kaizumi_text:
+    def _update_rolling(self, user_text: str, becko_text: str):
+        if not user_text and not becko_text:
             return
-        part = f"User: {user_text}\nKaizumi: {kaizumi_text}\n"
+        part = f"User: {user_text}\nBecko: {becko_text}\n"
         self._rolling_parts.append(part)
         self._rolling_len += len(part)
         with self._phase_lock:
@@ -1809,7 +1760,7 @@ class KaizumiLive:
         from safety import sanitize as _sanitize
         blocked = self.loop_guard.check(name, args)
         if blocked:
-            print(f"[KAIZUMI] 🛑 {name} blocked by loop guard")
+            print(f"[BECKO] 🛑 {name} blocked by loop guard")
             return ToolResult(ok=False, content=blocked, error_kind="loop")
 
         # ── Safety gate: high-risk actions need explicit user confirmation ──
@@ -1822,7 +1773,7 @@ class KaizumiLive:
         face_verify = bool(args.pop("face_verify", False))
         if needs_confirmation(name, args, confirm=confirm, confirm_token=confirm_token):
             token = issue_confirmation_token(name, args) if not confirm else ""
-            print(f"[KAIZUMI] ⛔ {name} blocked — confirmation required")
+            print(f"[BECKO] ⛔ {name} blocked — confirmation required")
             self._human_confirmed = False
             return ToolResult(
                 ok=True,
@@ -1833,7 +1784,7 @@ class KaizumiLive:
             )
         # Defense-in-depth: if confirm is asserted, require human verification
         if confirm and not getattr(self, "_human_confirmed", True):
-            print(f"[KAIZUMI] ⛔ {name} rejected — no human consent detected.")
+            print(f"[BECKO] ⛔ {name} rejected — no human consent detected.")
             return ToolResult(
                 ok=True,
                 content="Action blocked: human user has not verbally approved this yet. Ask the user for permission first.",
@@ -1927,7 +1878,7 @@ class KaizumiLive:
 
         from safety import sanitize as _sanitize
         log_tool(name, _sanitize(name, args))
-        print(f"[KAIZUMI] 🔧 {name}  {_sanitize(name, args)}")
+        print(f"[BECKO] 🔧 {name}  {_sanitize(name, args)}")
         self.ui.set_state("THINKING")
 
         # ── save_memory: sessiz, hızlı, Gemini'ye bildirim yok ───────────────
@@ -2001,7 +1952,7 @@ class KaizumiLive:
         # ── Loop guard: stop identical-arg / ping-pong tool loops in live mode ──
         blocked = self.loop_guard.check(name, args)
         if blocked:
-            print(f"[KAIZUMI] 🛑 {name} blocked by loop guard")
+            print(f"[BECKO] 🛑 {name} blocked by loop guard")
             if not self.ui.muted:
                 self.ui.set_state("LISTENING")
             return types.FunctionResponse(
@@ -2018,7 +1969,7 @@ class KaizumiLive:
         confirm_token = str(args.pop(CONFIRM_TOKEN_PARAM, ""))
         if needs_confirmation(name, args, confirm=confirm, confirm_token=confirm_token):
             token = issue_confirmation_token(name, args) if not confirm else ""
-            print(f"[KAIZUMI] ⛔ {name} blocked — confirmation required")
+            print(f"[BECKO] ⛔ {name} blocked — confirmation required")
             self._human_confirmed = False
             log_tool(name, args, error="confirmation required")
             if not self.ui.muted:
@@ -2030,7 +1981,7 @@ class KaizumiLive:
                     + (f"\n[token: {token}]" if token else "")}
             )
         if confirm and not getattr(self, "_human_confirmed", True):
-            print(f"[KAIZUMI] ⛔ {name} rejected — no human consent detected.")
+            print(f"[BECKO] ⛔ {name} rejected — no human consent detected.")
             return types.FunctionResponse(
                 id=fc.id, name=name,
                 response={"result": "Action blocked: human user has not verbally approved this yet. Ask the user for permission first."}
@@ -2066,7 +2017,7 @@ class KaizumiLive:
             self.ui.set_state("LISTENING")
 
         log_tool(name, args, result=result)
-        print(f"[KAIZUMI] 📤 {name} → {str(result)[:80]}")
+        print(f"[BECKO] 📤 {name} → {str(result)[:80]}")
 
         # ── Result: tek cümle söyle, dur ──────────────────────────────────────
         return types.FunctionResponse(
@@ -2075,7 +2026,7 @@ class KaizumiLive:
         )
 
     def _schedule(self, args: dict) -> str:
-        """In-app timed actions: when they fire, Kaizumi speaks reminders
+        """In-app timed actions: when they fire, Becko speaks reminders
         instead of relying on Windows Task Scheduler."""
         action = str(args.get("action", "list")).lower().strip()
         now = time.time()
@@ -2148,7 +2099,7 @@ class KaizumiLive:
                         try:
                             await asyncio.to_thread(
                                 notify,
-                                {"title": "Kaizumi", "message": s["message"]},
+                                {"title": "Becko", "message": s["message"]},
                                 self.ui)
                         except Exception:
                             pass
@@ -2191,7 +2142,7 @@ class KaizumiLive:
                     from actions.notifications import notify
                     await asyncio.to_thread(
                         notify,
-                        {"title": "Kaizumi", "message": text},
+                        {"title": "Becko", "message": text},
                         self.ui)
                     if self.session:
                         self.speak(text)
@@ -2238,7 +2189,7 @@ class KaizumiLive:
             return ""
         lines, used = [], 0
         for role, txt in list(hist)[-8:]:
-            line = f"{'User' if role == 'user' else 'Kaizumi'}: {txt}"
+            line = f"{'User' if role == 'user' else 'Becko'}: {txt}"
             if used + len(line) > limit:
                 break
             lines.append(line)
@@ -2384,7 +2335,7 @@ class KaizumiLive:
         voice   = _get_voice_from_memory(load_memory())
         now     = datetime.now().strftime("%A, %B %d, %Y — %I:%M %p")
         return (
-            "📊 <b>Kaizumi statusi</b>\n"
+            "📊 <b>Becko statusi</b>\n"
             f"🕒 {tg.html_escape(now)}\n"
             f"🎙 Mikrofon: <b>{'🔇 MUTED' if self.ui.muted else '🎤 LIVE'}</b>\n"
             f"🔄 Holat: <b>{tg.html_escape(phase)}</b>\n"
@@ -2532,7 +2483,7 @@ class KaizumiLive:
                 )
 
     async def _listen_audio(self):
-        print("[KAIZUMI] 🎤 Mic started")
+        print("[BECKO] 🎤 Mic started")
         loop = asyncio.get_event_loop()
 
         def callback(indata, frames, time_info, status):
@@ -2543,7 +2494,7 @@ class KaizumiLive:
                 loop.call_soon_threadsafe(self._safe_put_mic, data)
 
         if sd is None:
-            print("[KAIZUMI] ⚠️ sounddevice not available — mic disabled")
+            print("[BECKO] ⚠️ sounddevice not available — mic disabled")
             while True:
                 await asyncio.sleep(3600)
 
@@ -2555,11 +2506,11 @@ class KaizumiLive:
                 blocksize=CHUNK_SIZE,
                 callback=callback,
             ):
-                print("[KAIZUMI] 🎤 Mic stream open")
+                print("[BECKO] 🎤 Mic stream open")
                 while True:
                     await asyncio.sleep(0.1)
         except Exception as e:
-            print(f"[KAIZUMI] ⚠️ Microphone unavailable ({e}) — continuing in text mode")
+            print(f"[BECKO] ⚠️ Microphone unavailable ({e}) — continuing in text mode")
             self.ui.write_log(f"SYS: Mic unavailable ({str(e)[:60]}).")
             while True:
                 await asyncio.sleep(3600)
@@ -2577,11 +2528,11 @@ class KaizumiLive:
                 speaking = self._is_speaking
                 last     = self._last_play_ts
             if speaking and last and time.monotonic() - last > 25:
-                print("[KAIZUMI] ⏱ Speaking watchdog fired — force-cleared")
+                print("[BECKO] ⏱ Speaking watchdog fired — force-cleared")
                 self.set_speaking(False)
 
     async def _receive_audio(self):
-        print("[KAIZUMI] 👂 Recv started")
+        print("[BECKO] 👂 Recv started")
         out_buf, in_buf = [], []
 
         try:
@@ -2620,7 +2571,7 @@ class KaizumiLive:
 
                             full_out = " ".join(out_buf).strip()
                             if full_out:
-                                self.ui.write_log(f"Kaizumi: {full_out}")
+                                self.ui.write_log(f"Becko: {full_out}")
                             out_buf = []
 
 
@@ -2644,7 +2595,7 @@ class KaizumiLive:
                     if response.tool_call:
                         fn_responses = []
                         for fc in response.tool_call.function_calls:
-                            print(f"[KAIZUMI] 📞 {fc.name}")
+                            print(f"[BECKO] 📞 {fc.name}")
                             fr = await self._execute_tool(fc)
                             fn_responses.append(fr)
                         await self.session.send_tool_response(
@@ -2653,14 +2604,14 @@ class KaizumiLive:
                         # ── Boş turn YOK — bu "Anladım." sorununu yaratıyordu ──
 
         except Exception as e:
-            print(f"[KAIZUMI] ❌ Recv: {e}")
+            print(f"[BECKO] ❌ Recv: {e}")
             traceback.print_exc()
             raise
 
     async def _play_audio(self):
-        print("[KAIZUMI] 🔊 Play started")
+        print("[BECKO] 🔊 Play started")
         if sd is None:
-            print("[KAIZUMI] ⚠️ sounddevice not available — audio output disabled")
+            print("[BECKO] ⚠️ sounddevice not available — audio output disabled")
             while True:
                 chunk = await self.audio_in_queue.get()
                 self.set_speaking(False)
@@ -2687,7 +2638,7 @@ class KaizumiLive:
                     self._turn_complete = False
                     self.set_speaking(False)
         except Exception as e:
-            print(f"[KAIZUMI] ⚠️ Audio output failed ({e}) — running in silent mode")
+            print(f"[BECKO] ⚠️ Audio output failed ({e}) — running in silent mode")
             self.ui.write_log(f"SYS: Speaker unavailable ({str(e)[:60]}).")
             while True:
                 chunk = await self.audio_in_queue.get()
@@ -2734,7 +2685,7 @@ class KaizumiLive:
                             log(f"API client error: {ke}", level="ERROR")
                             await asyncio.sleep(5)
                             continue
-                    print("[KAIZUMI] 🔌 Connecting...")
+                    print("[BECKO] 🔌 Connecting...")
                     self.ui.set_state("THINKING")
                     self.ui.set_connecting(True)
                     config = self._build_config()
@@ -2752,11 +2703,11 @@ class KaizumiLive:
                         self._ready         = True
 
                         log("Gemini session CONNECTED")
-                        print("[KAIZUMI] ✅ Connected.")
+                        print("[BECKO] ✅ Connected.")
                         self.ui.set_connection(True)
                         self.ui.set_persona(*self._persona_info())
                         self.ui.set_state("LISTENING")
-                        self.ui.write_log("SYS: Kaizumi online.")
+                        self.ui.write_log("SYS: Becko online.")
 
                         tg.create_task(self._send_realtime())
                         tg.create_task(self._listen_audio())
@@ -2768,7 +2719,7 @@ class KaizumiLive:
 
                 except Exception as e:
                     log(f"Session error: {e}", level="ERROR")
-                    print(f"[KAIZUMI] ⚠️ {e}")
+                    print(f"[BECKO] ⚠️ {e}")
                     traceback.print_exc()
                     # Rotate the key on quota/exhaustion so a dead key can't
                     # pin the reconnect loop forever.
@@ -2791,7 +2742,7 @@ class KaizumiLive:
                 self.ui.set_connection(False)
                 self.ui.set_state("THINKING")
                 log(f"Session lost — reconnecting in {backoff}s", level="WARN")
-                print(f"[KAIZUMI] 🔄 Reconnecting in {backoff}s...")
+                print(f"[BECKO] 🔄 Reconnecting in {backoff}s...")
                 await asyncio.sleep(backoff)
                 backoff = min(backoff * 2, 60)
         finally:
@@ -2815,14 +2766,14 @@ def main():
     _ensure_core_deps()
     log_file = setup_logger(BASE_DIR)
     log(f"Base dir: {BASE_DIR}\nLog file: {log_file}")
-    ui = KaizumiUI("face.png")
+    ui = BeckoUI("face.png")
 
     def runner():
         ui.wait_for_api_key()
-        kaizumi = KaizumiLive(ui)
-        kaizumi.attach_tray()
+        becko = BeckoLive(ui)
+        becko.attach_tray()
         try:
-            asyncio.run(kaizumi.run())
+            asyncio.run(becko.run())
         except KeyboardInterrupt:
             print("\n🔴 Shutting down...")
 
@@ -2831,7 +2782,7 @@ def main():
     try:
         ui.root.mainloop()
     except KeyboardInterrupt:
-        print("\n🛑 Stopping Kaizumi (Ctrl+C)...")
+        print("\n🛑 Stopping Becko (Ctrl+C)...")
         try:
             from actions.system_tray import stop as _tray_stop
             _tray_stop()

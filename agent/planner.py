@@ -1,4 +1,4 @@
-﻿import json
+import json
 import re
 import sys
 from pathlib import Path
@@ -14,7 +14,7 @@ BASE_DIR        = get_base_dir()
 API_CONFIG_PATH = BASE_DIR / "config" / "api_keys.json"
 
 
-PLANNER_PROMPT = """You are the planning module of Kaizumi, a personal AI assistant.
+PLANNER_PROMPT = """You are the planning module of Becko, a personal AI assistant.
 Your job: break any user goal into a sequence of steps using ONLY the tools listed below.
 
 ABSOLUTE RULES:
@@ -65,7 +65,7 @@ daily_briefing
   city: string (optional) — weather defaults to saved memory
 
 wake_word
-  action: "start" | "stop" | "status" (required) — hands-free 'Hey Kaizumi' listener
+  action: "start" | "stop" | "status" (required) — hands-free 'Hey Becko' listener
 
 cmd_control
   task: string (required) — natural language description of what to do

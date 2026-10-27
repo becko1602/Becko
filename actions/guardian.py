@@ -1,5 +1,5 @@
 # actions/guardian.py
-# Kaizumi — PC Health Guardian: proactive smart alerts + battery health report.
+# Becko — PC Health Guardian: proactive smart alerts + battery health report.
 #
 # Unlike monitor_alerts (user-defined threshold rules), the guardian works with
 # sensible defaults out of the box and needs zero configuration:
@@ -154,7 +154,7 @@ def _temp_c() -> float | None:
 def battery_health() -> str:
     """Battery wear report via `powercfg /batteryreport`. Returns a
     spoken-friendly string."""
-    tmp = Path(time.strftime("kaizumi-batt-%Y%m%d-%H%M%S.html", time.localtime()))
+    tmp = Path(time.strftime("becko-batt-%Y%m%d-%H%M%S.html", time.localtime()))
     report = get_base_dir() / "config" / tmp.name
     try:
         subprocess.run(

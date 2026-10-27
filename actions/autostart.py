@@ -1,12 +1,12 @@
 # actions/autostart.py
-# Kaizumi — start automatically on Windows login (HKCU Run key)
+# Becko — start automatically on Windows login (HKCU Run key)
 
 import sys
 import winreg
 from pathlib import Path
 
 RUN_KEY_PATH = r"Software\Microsoft\Windows\CurrentVersion\Run"
-TASK_NAME    = "Kaizumi"
+TASK_NAME    = "Becko"
 
 
 def get_base_dir() -> Path:
@@ -64,19 +64,19 @@ def autostart_action(
         if action in ("status", "check"):
             val = _get_run()
             if not val:
-                return ("Kaizumi is NOT set to start automatically, sir. Say "
+                return ("Becko is NOT set to start automatically, sir. Say "
                         "'enable autostart' to start it at every login.")
-            return ("Kaizumi will start automatically at login, sir. "
+            return ("Becko will start automatically at login, sir. "
                     f"Command: {val}")
 
         if action in ("enable", "on", "add"):
             cmd = _launch_command()
             _set_run(cmd)
-            return "Autostart enabled, sir. Kaizumi will launch at login."
+            return "Autostart enabled, sir. Becko will launch at login."
 
         if action in ("disable", "off", "remove", "delete"):
             removed = _del_run()
-            return ("Autostart disabled, sir. Kaizumi will no longer start at "
+            return ("Autostart disabled, sir. Becko will no longer start at "
                     "login." if removed else
                     "Autostart was already off, sir.")
 

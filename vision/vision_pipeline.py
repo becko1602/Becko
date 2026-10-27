@@ -1,4 +1,4 @@
-"""Composable frame pipeline for Kaizumi's vision modules."""
+"""Composable frame pipeline for Becko's vision modules."""
 
 from __future__ import annotations
 

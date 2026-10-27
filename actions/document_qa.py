@@ -1,5 +1,5 @@
 # actions/document_qa.py
-# Kaizumi — question-answering over any document or web page
+# Becko — question-answering over any document or web page
 # (pdf, txt, md, html, docx, csv, pptx, xlsx, and http(s) URLs)
 
 import os
@@ -104,7 +104,7 @@ def _extract_url(url: str) -> str:
         raise RuntimeError("I can't fetch internal or private network URLs, sir.")
     if "169.254.169.254" in url or "metadata.google.internal" in url:
         raise RuntimeError("That URL is off-limits, sir.")
-    headers = {"User-Agent": "Mozilla/5.0 (Kaizumi/assistant)"}
+    headers = {"User-Agent": "Mozilla/5.0 (Becko/assistant)"}
     resp = requests.get(url, headers=headers, timeout=20)
     resp.raise_for_status()
     # Guard redirect chains too (a public URL can redirect to internal hosts).
